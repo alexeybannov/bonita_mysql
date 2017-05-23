@@ -1,0 +1,42 @@
+version: '3'
+services:
+  bonita:
+    container_name: bonita_mysql
+    image: bonita:latest
+    ports:
+     - 8080:8080
+    links:
+     - mydbmysql:mysql
+    restart: always
+    environment:
+     - DB_VENDOR=mysql
+     - DB_HOST=mydbmysql
+     - DB_NAME=bonitadb
+     - DB_USER=bonitauser
+     - DB_PASS=bonitapass
+     - BIZ_DB_NAME=businessdb
+     - BIZ_DB_USER=businessuser
+     - BIZ_DB_PASS=businesspass
+     - DB_ADMIN_USER=root
+     - DB_ADMIN_PASS=i
+    volumes:
+     - ./wait-for-it.sh:/opt/files/wait-for-it.sh
+    command: ["./opt/files/wait-for-it.sh", "mydbmysql:3306", "--", "/opt/files/startup.sh"]
+  mydbmysql:
+    container_name: mydbmysql
+    image: mysql:5.5
+    environment:
+      - MYSQL_ROOT_PASSWORD=i
+      - MYSQL_DATABASE=bonitadb
+      - MYSQL_USER=bonitauser
+      - MYSQL_PASSWORD=bonitapass
+    restart: always
+    expose:
+      - '3306'
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./custom_mysql/:/etc/mysql/conf.d
+volumes:
+  mysql_data:
+
+
